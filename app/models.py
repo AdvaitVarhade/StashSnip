@@ -1,12 +1,13 @@
 from datetime import datetime, UTC
 
-def make_snippet(title, language, code, description, tags):
+def make_snippet(title, language, code, description, tags, collection=""):
     return {
         "title": title,
         "language": language,
         "code": code,
         "description": description,
         "tags": tags,
+        "collection": collection,
         "deleted": False,
         "created_at": datetime.now(UTC),
         "updated_at": datetime.now(UTC)

@@ -20,6 +20,7 @@ def index():
     query = request.args.get("q", "")
     tag = request.args.get("tag", "")
     language = request.args.get("language", "")
+    collection = request.args.get("collection", "")
     page = request.args.get("page", 1, type=int)
     page = max(page, 1)
 
@@ -37,6 +38,8 @@ def index():
         filters["tags"] = tag
     if language:
         filters["language"] = language
+    if collection:
+        filters["collection"] = collection
 
     total_snippets = snippets_collection.count_documents(filters)
     total_pages = ceil(total_snippets / PAGE_SIZE) if total_snippets else 0
@@ -52,12 +55,14 @@ def index():
     )
 
     languages = snippets_collection.distinct("language")
+    collections = snippets_collection.distinct("collection")
     pagination_params = {
         key: value
         for key, value in {
             "q": query,
             "tag": tag,
             "language": language,
+            "collection": collection,
         }.items()
         if value
     }
@@ -69,7 +74,9 @@ def index():
         query=query,
         tag=tag,
         language=language,
+        collection=collection,
         languages=languages,
+        collections=[c for c in collections if c],
         page=page,
         total_pages=total_pages,
         pagination_params=pagination_params,
@@ -87,6 +94,7 @@ def add_snippet():
             code=form.code.data,
             description=form.description.data,
             tags=tags,
+            collection=form.collection.data,
         )
 
         existing = snippets_collection.find_one({
@@ -164,6 +172,7 @@ def edit_snippet(id):
                     "language": form.language.data,
                     "code": form.code.data,
                     "description": form.description.data,
+                    "collection": form.collection.data,
                     "tags": tags,
                     "updated_at": datetime.now(UTC),
                 }
@@ -177,6 +186,7 @@ def edit_snippet(id):
     form.language.data = snippet["language"]
     form.code.data = snippet["code"]
     form.description.data = snippet.get("description", "")
+    form.collection.data = snippet.get("collection", "")
     form.tags.data = ", ".join(snippet.get("tags", []))
 
     return render_template("edit.html", form=form, snippet=snippet)

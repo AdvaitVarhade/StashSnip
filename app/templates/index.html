@@ -8,18 +8,21 @@
 
 <div class="search-bar">
     <form method="GET" action="/">
-        <div class="search-input-wrapper">
-            <input type="text" name="q" id="searchInput" value="{{ query }}" placeholder="Search snips...">
-            <button type="button" id="searchClearBtn" class="search-clear-btn" aria-label="Clear search text" style="display: none;">×</button>
-        </div>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search snips...">
         <select name="language">
             <option value="">All Languages</option>
             {% for lang in languages %}
             <option value="{{ lang }}" {% if lang == language %}selected{% endif %}>{{ lang }}</option>
             {% endfor %}
         </select>
+        <select name="collection">
+            <option value="">All Collections</option>
+            {% for coll in collections %}
+            <option value="{{ coll }}" {% if coll == collection %}selected{% endif %}>{{ coll }}</option>
+            {% endfor %}
+        </select>
         <button type="submit">Search</button>
-        {% if query or tag or language %}
+        {% if query or tag or language or collection %}
         <a href="/" class="clear-btn">Clear</a>
         {% endif %}
     </form>
@@ -52,18 +55,18 @@
         </div>
         <div class="card-header">
             <span class="language-badge">{{ snippet.language }}</span>
+            {% if snippet.collection %}
+            <span class="language-badge" style="background-color: var(--bg-alt); color: var(--text-muted); border: 1px solid var(--border);">{{ snippet.collection }}</span>
+            {% endif %}
             <a href="/snippet/{{ snippet._id }}" class="card-title">{{ snippet.title }}</a>
         </div>
         {% if snippet.description %}
         <p class="card-description">{{ snippet.description }}</p>
         {% endif %}
         <div class="card-tags">
-            {% for t in snippet.tags[:4] %}
+            {% for t in snippet.tags %}
             <a href="/?tag={{ t }}" class="tag">{{ t }}</a>
             {% endfor %}
-            {% if snippet.tags|length > 4 %}
-            <span class="tag tag-more">+{{ snippet.tags|length - 4 }} more</span>
-            {% endif %}
         </div>
     </div>
         {% endfor %}
